@@ -3,6 +3,8 @@ import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
 import { EditorView, lineNumbers, keymap } from '@codemirror/view'
 import { EditorState } from '@codemirror/state'
 import { markdown } from '@codemirror/lang-markdown'
+import { javascript } from '@codemirror/lang-javascript'
+import { java } from '@codemirror/lang-java'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { emitWriteFile } from '../socket'
@@ -18,6 +20,22 @@ interface Props {
   path: string
   initialContent: string
   theme: 'dark' | 'light'
+}
+
+function getLanguageExtension(path: string) {
+  const ext = path.split('.').pop()?.toLowerCase()
+  switch (ext) {
+    case 'js':
+    case 'jsx':
+      return javascript({ jsx: true })
+    case 'ts':
+    case 'tsx':
+      return javascript({ jsx: true, typescript: true })
+    case 'java':
+      return java()
+    default:
+      return markdown()
+  }
 }
 
 export default function MarkdownEditor({ path, initialContent, theme }: Props) {
@@ -56,7 +74,7 @@ export default function MarkdownEditor({ path, initialContent, theme }: Props) {
       history(),
       keymap.of([...defaultKeymap, ...historyKeymap]),
       saveKeymap,
-      markdown(),
+      getLanguageExtension(path),
       lineNumbers(),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
