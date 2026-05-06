@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-size-base: 14px;
+}
+
+html {
+  font-size: var(--font-size-base);
+}
+
+/* 淺色主題下滑鼠反白 */
+::selection {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+/* 深色主題下滑鼠反白 */
+.dark ::selection {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+/* xterm.js 容器預設 overflow: scroll，這裡強制隱藏避免出現多餘滾動條 */
+.xterm-viewport {
+  overflow-y: hidden !important;
+}
+
+/* react-resizable-panels: panel group 需要明確高度才能正確計算比例 */
+[data-panel-group] {
+  height: 100%;
+}
