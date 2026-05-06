@@ -3,8 +3,12 @@ import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
 import { EditorView, lineNumbers, keymap } from '@codemirror/view'
 import { EditorState } from '@codemirror/state'
 import { markdown } from '@codemirror/lang-markdown'
-import { oneDark } from '@codemirror/theme-one-dark'
+import { javascript } from '@codemirror/lang-javascript'
+import { java } from '@codemirror/lang-java'
+import { oneDark, oneDarkHighlightStyle } from '@codemirror/theme-one-dark'
+import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
+import { vim, Vim } from '@replit/codemirror-vim'
 import { emitWriteFile } from '../socket'
 import { marked } from 'marked'
 import hljs from 'highlight.js'
@@ -20,7 +24,23 @@ interface Props {
   theme: 'dark' | 'light'
 }
 
-export default function MarkdownEditor({ path, initialContent, theme }: Props) {
+function getLanguageExtension(path: string) {
+  const ext = path.split('.').pop()?.toLowerCase()
+  switch (ext) {
+    case 'js':
+    case 'jsx':
+      return javascript({ jsx: true })
+    case 'ts':
+    case 'tsx':
+      return javascript({ jsx: true, typescript: true })
+    case 'java':
+      return java()
+    default:
+      return markdown()
+  }
+}
+
+export default function CodeEditor({ path, initialContent, theme }: Props) {
   const editorContainerRef = useRef<HTMLDivElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
@@ -53,10 +73,11 @@ export default function MarkdownEditor({ path, initialContent, theme }: Props) {
     }])
 
     const extensions = [
+      vim(),
       history(),
       keymap.of([...defaultKeymap, ...historyKeymap]),
       saveKeymap,
-      markdown(),
+      getLanguageExtension(path),
       lineNumbers(),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
@@ -68,12 +89,23 @@ export default function MarkdownEditor({ path, initialContent, theme }: Props) {
         '&': { height: '100%' },
         '.cm-scroller': { overflow: 'auto', fontFamily: 'monospace', fontSize: '12px' },
       }),
-      ...(theme === 'dark' ? [oneDark] : []),
+      ...(theme === 'dark'
+        ? [oneDark, syntaxHighlighting(oneDarkHighlightStyle)]
+        : [syntaxHighlighting(defaultHighlightStyle)]),
     ]
 
     const state = EditorState.create({ doc: initialContent, extensions })
     const view = new EditorView({ state, parent: editorContainerRef.current })
     viewRef.current = view
+
+    // global registration — last mounted editor wins if multiple instances coexist
+    Vim.defineEx('write', 'w', () => {
+      const content = view.state.doc.toString()
+      emitWriteFile(path, content).then((result) => {
+        if ('ok' in result) isDirtyRef.current = false
+      })
+    })
+
     updatePreview(initialContent)
 
     return () => {
@@ -82,6 +114,7 @@ export default function MarkdownEditor({ path, initialContent, theme }: Props) {
     }
   }, [path, initialContent, theme, updatePreview])
 
+  const isMarkdown = path.endsWith('.md')
   const bgClass = theme === 'dark' ? 'bg-[#0d1117] text-gray-200' : 'bg-gray-50 text-gray-800'
   const borderClass = theme === 'dark' ? 'border-gray-800' : 'border-gray-200'
 
@@ -90,24 +123,28 @@ export default function MarkdownEditor({ path, initialContent, theme }: Props) {
       <div className={`px-4 py-2 border-b ${borderClass} text-xs text-gray-500 font-mono truncate`}>
         {path}
       </div>
-      <PanelGroup direction="horizontal" className="flex-1 min-h-0">
-        <Panel defaultSize={50} minSize={20}>
-          <div className={`h-full flex flex-col border-r ${borderClass}`}>
-            <div className={`px-3 py-1 text-xs text-gray-500 border-b ${borderClass}`}>原始碼</div>
-            <div ref={editorContainerRef} className="flex-1 min-h-0 overflow-hidden" />
-          </div>
-        </Panel>
-        <PanelResizeHandle className={`w-1 cursor-col-resize ${theme === 'dark' ? 'bg-gray-700 hover:bg-gray-500' : 'bg-gray-300 hover:bg-gray-400'} transition-colors`} />
-        <Panel defaultSize={50} minSize={20}>
-          <div className="h-full flex flex-col">
-            <div className={`px-3 py-1 text-xs text-gray-500 border-b ${borderClass}`}>預覽</div>
-            <div
-              ref={previewRef}
-              className={`flex-1 overflow-auto p-4 prose prose-sm max-w-none ${theme === 'dark' ? 'prose-invert' : ''}`}
-            />
-          </div>
-        </Panel>
-      </PanelGroup>
+      {isMarkdown ? (
+        <PanelGroup direction="horizontal" className="flex-1 min-h-0">
+          <Panel defaultSize={50} minSize={20}>
+            <div className={`h-full flex flex-col border-r ${borderClass}`}>
+              <div className={`px-3 py-1 text-xs text-gray-500 border-b ${borderClass}`}>原始碼</div>
+              <div ref={editorContainerRef} className="flex-1 min-h-0 overflow-hidden" />
+            </div>
+          </Panel>
+          <PanelResizeHandle className={`w-1 cursor-col-resize ${theme === 'dark' ? 'bg-gray-700 hover:bg-gray-500' : 'bg-gray-300 hover:bg-gray-400'} transition-colors`} />
+          <Panel defaultSize={50} minSize={20}>
+            <div className="h-full flex flex-col">
+              <div className={`px-3 py-1 text-xs text-gray-500 border-b ${borderClass}`}>預覽</div>
+              <div
+                ref={previewRef}
+                className={`flex-1 overflow-auto p-4 prose prose-sm max-w-none ${theme === 'dark' ? 'prose-invert' : ''}`}
+              />
+            </div>
+          </Panel>
+        </PanelGroup>
+      ) : (
+        <div ref={editorContainerRef} className="flex-1 min-h-0 overflow-hidden" />
+      )}
     </div>
   )
 }

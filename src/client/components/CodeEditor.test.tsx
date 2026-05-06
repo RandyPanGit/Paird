@@ -28,29 +28,35 @@ vi.mock('react-resizable-panels', () => ({
   PanelResizeHandle: () => null,
 }))
 
-import MarkdownEditor from './MarkdownEditor'
+vi.mock('@replit/codemirror-vim', () => ({
+  vim: vi.fn(() => []),
+  Vim: {
+    defineEx: vi.fn(),
+  },
+}))
 
-describe('MarkdownEditor', () => {
+import CodeEditor from './CodeEditor'
+
+describe('CodeEditor', () => {
   it('renders the file path', () => {
     renderWithApp(
-      <MarkdownEditor path="/project/README.md" initialContent="# Hello" theme="light" />
+      <CodeEditor path="/project/README.md" initialContent="# Hello" theme="light" />
     )
     expect(screen.getByText('/project/README.md')).toBeInTheDocument()
   })
 
   it('renders editor and preview sections', () => {
     renderWithApp(
-      <MarkdownEditor path="/project/README.md" initialContent="# Hello" theme="light" />
+      <CodeEditor path="/project/README.md" initialContent="# Hello" theme="light" />
     )
     expect(screen.getByText('原始碼')).toBeInTheDocument()
     expect(screen.getByText('預覽')).toBeInTheDocument()
   })
 
-  it('calls emitWriteFile with path and content on Cmd+S', async () => {
-    const { emitWriteFile } = await import('../socket')
+  it('mounts without crashing when vim mode is active', () => {
     renderWithApp(
-      <MarkdownEditor path="/project/README.md" initialContent="# Hello" theme="light" />
+      <CodeEditor path="/project/main.ts" initialContent="const x = 1" theme="dark" />
     )
-    expect(emitWriteFile).toBeDefined()
+    expect(document.querySelector('.cm-editor')).not.toBeNull()
   })
 })
