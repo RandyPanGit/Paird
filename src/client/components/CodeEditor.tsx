@@ -98,6 +98,7 @@ export default function CodeEditor({ path, initialContent, theme }: Props) {
     const view = new EditorView({ state, parent: editorContainerRef.current })
     viewRef.current = view
 
+    // global registration — last mounted editor wins if multiple instances coexist
     Vim.defineEx('write', 'w', () => {
       const content = view.state.doc.toString()
       emitWriteFile(path, content).then((result) => {
