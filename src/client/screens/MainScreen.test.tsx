@@ -41,7 +41,7 @@ describe('MainScreen', () => {
 
   it('renders workspace tabs alongside git status, and team chat', () => {
     renderWithApp(<MainScreen />)
-    expect(screen.getByText('Git Status')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Git Status' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Agent Output' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Git History' })).toBeInTheDocument()
     expect(screen.getByText('Team Chat')).toBeInTheDocument()

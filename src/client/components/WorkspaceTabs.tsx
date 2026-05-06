@@ -1,9 +1,13 @@
 import TerminalPanel from './TerminalPanel'
 import FileViewPanel from './FileViewPanel'
+import GitPanel from './GitPanel'
+import GitHistoryPanel from './GitHistoryPanel'
 import { useStore } from '../store'
 
 const FIXED_TABS = [
   { id: 'agent-output', label: 'Agent Output' },
+  { id: 'git-status', label: 'Git Status' },
+  { id: 'git-history', label: 'Git History' },
 ] as const
 
 export default function WorkspaceTabs() {
@@ -67,6 +71,8 @@ export default function WorkspaceTabs() {
       </div>
 
       <div className={activeWorkspaceTab === 'agent-output' ? 'flex flex-col flex-1 min-h-0' : 'hidden'}><TerminalPanel /></div>
+      <div className={activeWorkspaceTab === 'git-status' ? 'flex flex-col flex-1 min-h-0 overflow-y-auto p-3' : 'hidden'}><GitPanel /></div>
+      <div className={activeWorkspaceTab === 'git-history' ? 'flex flex-col flex-1 min-h-0' : 'hidden'}><GitHistoryPanel /></div>
       <div className={isFileTab ? 'flex flex-col flex-1 min-h-0' : 'hidden'}><FileViewPanel /></div>
     </div>
   )
