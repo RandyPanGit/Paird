@@ -28,6 +28,13 @@ vi.mock('react-resizable-panels', () => ({
   PanelResizeHandle: () => null,
 }))
 
+vi.mock('@replit/codemirror-vim', () => ({
+  vim: vi.fn(() => []),
+  Vim: {
+    defineEx: vi.fn(),
+  },
+}))
+
 import CodeEditor from './CodeEditor'
 
 describe('CodeEditor', () => {
@@ -52,5 +59,12 @@ describe('CodeEditor', () => {
       <CodeEditor path="/project/README.md" initialContent="# Hello" theme="light" />
     )
     expect(emitWriteFile).toBeDefined()
+  })
+
+  it('mounts without crashing when vim mode is active', () => {
+    renderWithApp(
+      <CodeEditor path="/project/main.ts" initialContent="const x = 1" theme="dark" />
+    )
+    expect(document.querySelector('.cm-editor')).not.toBeNull()
   })
 })
