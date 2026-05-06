@@ -5,8 +5,8 @@ import 'xterm/css/xterm.css'
 import { onTerminalOutput, emitTerminalResize, emitTerminalInput } from '../socket'
 import { useStore } from '../store'
 
-const XTERM_DARK = { background: '#0d1117', foreground: '#c9d1d9' }
-const XTERM_LIGHT = { background: '#ffffff', foreground: '#1e1e1e' }
+const XTERM_DARK = { background: '#0d1117', foreground: '#c9d1d9', selectionBackground: '#3b82f6', selectionForeground: '#ffffff' }
+const XTERM_LIGHT = { background: '#ffffff', foreground: '#1e1e1e', selectionBackground: '#2563eb', selectionForeground: '#ffffff' }
 
 export default function TerminalPanel() {
   const containerRef = useRef<HTMLDivElement>(null)
