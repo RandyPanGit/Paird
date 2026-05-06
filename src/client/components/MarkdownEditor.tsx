@@ -5,7 +5,8 @@ import { EditorState } from '@codemirror/state'
 import { markdown } from '@codemirror/lang-markdown'
 import { javascript } from '@codemirror/lang-javascript'
 import { java } from '@codemirror/lang-java'
-import { oneDark } from '@codemirror/theme-one-dark'
+import { oneDark, oneDarkHighlightStyle } from '@codemirror/theme-one-dark'
+import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { emitWriteFile } from '../socket'
 import { marked } from 'marked'
@@ -86,7 +87,9 @@ export default function MarkdownEditor({ path, initialContent, theme }: Props) {
         '&': { height: '100%' },
         '.cm-scroller': { overflow: 'auto', fontFamily: 'monospace', fontSize: '12px' },
       }),
-      ...(theme === 'dark' ? [oneDark] : []),
+      ...(theme === 'dark'
+        ? [oneDark, syntaxHighlighting(oneDarkHighlightStyle)]
+        : [syntaxHighlighting(defaultHighlightStyle)]),
     ]
 
     const state = EditorState.create({ doc: initialContent, extensions })
