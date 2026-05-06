@@ -28,19 +28,19 @@ vi.mock('react-resizable-panels', () => ({
   PanelResizeHandle: () => null,
 }))
 
-import MarkdownEditor from './MarkdownEditor'
+import CodeEditor from './CodeEditor'
 
-describe('MarkdownEditor', () => {
+describe('CodeEditor', () => {
   it('renders the file path', () => {
     renderWithApp(
-      <MarkdownEditor path="/project/README.md" initialContent="# Hello" theme="light" />
+      <CodeEditor path="/project/README.md" initialContent="# Hello" theme="light" />
     )
     expect(screen.getByText('/project/README.md')).toBeInTheDocument()
   })
 
   it('renders editor and preview sections', () => {
     renderWithApp(
-      <MarkdownEditor path="/project/README.md" initialContent="# Hello" theme="light" />
+      <CodeEditor path="/project/README.md" initialContent="# Hello" theme="light" />
     )
     expect(screen.getByText('原始碼')).toBeInTheDocument()
     expect(screen.getByText('預覽')).toBeInTheDocument()
@@ -49,7 +49,7 @@ describe('MarkdownEditor', () => {
   it('calls emitWriteFile with path and content on Cmd+S', async () => {
     const { emitWriteFile } = await import('../socket')
     renderWithApp(
-      <MarkdownEditor path="/project/README.md" initialContent="# Hello" theme="light" />
+      <CodeEditor path="/project/README.md" initialContent="# Hello" theme="light" />
     )
     expect(emitWriteFile).toBeDefined()
   })

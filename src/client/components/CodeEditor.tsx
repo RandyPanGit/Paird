@@ -39,7 +39,7 @@ function getLanguageExtension(path: string) {
   }
 }
 
-export default function MarkdownEditor({ path, initialContent, theme }: Props) {
+export default function CodeEditor({ path, initialContent, theme }: Props) {
   const editorContainerRef = useRef<HTMLDivElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)

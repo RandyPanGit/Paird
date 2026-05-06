@@ -1,5 +1,5 @@
 import { useStore } from '../store'
-import MarkdownEditor from './MarkdownEditor'
+import CodeEditor from './CodeEditor'
 
 export default function FileViewPanel() {
   const openFiles = useStore((state) => state.openFiles)
@@ -21,7 +21,7 @@ export default function FileViewPanel() {
   const EDITOR_EXTENSIONS = ['.md', '.js', '.jsx', '.ts', '.tsx', '.java']
   if (EDITOR_EXTENSIONS.some(ext => openFile.path.endsWith(ext))) {
     return (
-      <MarkdownEditor
+      <CodeEditor
         path={openFile.path}
         initialContent={openFile.content}
         theme={theme}
