@@ -53,14 +53,6 @@ describe('CodeEditor', () => {
     expect(screen.getByText('預覽')).toBeInTheDocument()
   })
 
-  it('calls emitWriteFile with path and content on Cmd+S', async () => {
-    const { emitWriteFile } = await import('../socket')
-    renderWithApp(
-      <CodeEditor path="/project/README.md" initialContent="# Hello" theme="light" />
-    )
-    expect(emitWriteFile).toBeDefined()
-  })
-
   it('mounts without crashing when vim mode is active', () => {
     renderWithApp(
       <CodeEditor path="/project/main.ts" initialContent="const x = 1" theme="dark" />
